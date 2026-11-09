@@ -34,25 +34,43 @@ AppAsset::register($this);
             'class' => 'navbar navbar-expand-md navbar-dark bg-dark fixed-top',
         ],
     ]);
-    echo Nav::widget([
-        'options' => ['class' => 'navbar-nav'],
-        'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
-            Yii::$app->user->isGuest ? (
-                ['label' => 'Login', 'url' => ['/site/login']]
-            ) : (
-                '<li>'
-                . Html::beginForm(['/site/logout'], 'post', ['class' => 'form-inline'])
-                . Html::submitButton(
-                    'Logout (' . Yii::$app->user->identity->username . ')',
-                    ['class' => 'btn btn-link logout']
-                )
-                . Html::endForm()
-                . '</li>'
+   $items = [];
+
+    $items[] = ['label' => 'Главная', 'url' => ['/site/index']];
+    $items[] = ['label' => 'Контакты', 'url' => ['/site/about']];
+
+    if (Yii::$app->user->isGuest) {
+        // Для гостей
+        $items[] = ['label' => 'Регистрация', 'url' => ['/user/create']];
+        $items[] = ['label' => 'Вход', 'url' => ['/site/login']];
+    } else {
+        // Для авторизованных (проверяем поле role из вашей БД)
+        if (Yii::$app->user->identity->role === 'admin') {
+            // Меню Админа
+            $items[] = ['label' => 'Все заявки', 'url' => ['/requests/index']];
+            $items[] = ['label' => 'Категории услуг', 'url' => ['/category/index']];
+            $items[] = ['label' => 'Пользователи', 'url' => ['/user/index']];
+        } else {
+            // Меню обычного пользователя
+            $items[] = ['label' => 'Мои заявки', 'url' => ['/requests/index']];
+            $items[] = ['label' => 'Создать заявку', 'url' => ['/requests/create']];
+        }
+
+        // Кнопка выхода (оставил как у вас)
+        $items[] = '<li>'
+            . Html::beginForm(['/site/logout'], 'post')
+            . Html::submitButton(
+                'Выйти (' . Yii::$app->user->identity->username . ')', 
+                ['class' => 'btn btn-link logout']
             )
-        ],
+            . Html::endForm()
+            . '</li>';
+    }
+
+    // Вывод меню (эта строчка должна быть после закрывающей скобки else)
+    echo Nav::widget([
+        'options' => ['class' => 'navbar-nav navbar-right'],
+        'items' => $items,
     ]);
     NavBar::end();
     ?>

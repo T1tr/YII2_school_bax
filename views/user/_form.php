@@ -2,9 +2,11 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use yii\helpers\ArrayHelper;
+use app\models\Organization; // Подключаем модель организации
 
 /** @var yii\web\View $this */
-/** @var app\models\User $model */
+/** @var app\models\RegForm $model */ // Обрати внимание, тут теперь RegForm, а не User!
 /** @var yii\widgets\ActiveForm $form */
 ?>
 
@@ -12,7 +14,11 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'organization_id')->textInput() ?>
+    <!-- Выпадающий список организаций -->
+    <?= $form->field($model, 'organization_id')->dropDownList(
+        ArrayHelper::map(Organization::find()->all(), 'id', 'name'),
+        ['prompt' => '--- Выберите организацию ---']
+    ) ?>
 
     <?= $form->field($model, 'fullname')->textInput(['maxlength' => true]) ?>
 
@@ -22,10 +28,12 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'pass')->passwordInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'role')->textInput() ?>
+    <!-- Добавляем повторный ввод пароля (обязательно для RegForm) -->
+    <?= $form->field($model, 'password2')->passwordInput(['maxlength' => true])->label('Повторите пароль') ?>
 
     <div class="form-group">
-        <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+        <!-- Поменял кнопку на русскую -->
+        <?= Html::submitButton('Зарегистрироваться', ['class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>
